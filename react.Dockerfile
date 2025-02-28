@@ -1,7 +1,9 @@
 # Stage 1: Build the React app
 FROM node:22-alpine AS builder
 
-ENV REACT_APP_API_BASE_URL=https://api.omega-next.online/api/v1
+# Set build argument in ENV
+ARG REACT_API_BASE_URL
+ENV REACT_API_BASE_URL=${REACT_API_BASE_URL}
 
 WORKDIR /app
 
