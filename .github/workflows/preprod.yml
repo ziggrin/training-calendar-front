@@ -47,7 +47,7 @@ jobs:
           docker build \
           --build-arg REACT_API_BASE_URL="${{ env.REACT_API_BASE_URL }}" \
           -t $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG \
-          -f nginx.Dockerfile .
+          -f react.Dockerfile .
           docker tag  $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:latest
           docker push $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY --all-tags
           echo "image=$NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
