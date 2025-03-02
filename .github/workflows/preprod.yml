@@ -37,9 +37,6 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Print vars
-        run: echo ${{ vars.REACT_APP_API_URL }}
-
       - name: react - Build, tag, and push image to Amazon ECR
         id: react-build-image
         env:
