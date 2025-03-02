@@ -45,7 +45,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-          --build-arg REACT_API_BASE_URL="${{ env.REACT_APP_API_URL }}" \
+          --build-arg REACT_APP_API_URL="${{ env.REACT_APP_API_URL }}" \
           -t $REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY:$IMAGE_TAG \
           -f react.Dockerfile .
           docker tag  $REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY:$IMAGE_TAG $REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY:latest
