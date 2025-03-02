@@ -41,7 +41,7 @@ jobs:
         id: react-build-image
         env:
           REACT_ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REACT_ECR_REPOSITORY: training-calendar-frontend-preprod-react
+          REACT_ECR_REPOSITORY: training-calendar-frontend-preprod-nginx
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
