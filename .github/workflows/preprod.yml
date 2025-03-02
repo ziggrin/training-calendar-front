@@ -43,6 +43,7 @@ jobs:
           REACT_ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REACT_ECR_REPOSITORY: training-calendar-frontend-preprod-nginx
           IMAGE_TAG: ${{ github.sha }}
+          REACT_APP_API_URL: ${{ env.REACT_APP_API_URL }}
         run: |
           docker build \
           --build-arg REACT_APP_API_URL="${{ env.REACT_APP_API_URL }}" \
