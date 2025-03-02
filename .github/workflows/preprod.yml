@@ -37,37 +37,37 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: nginx - Build, tag, and push image to Amazon ECR
-        id: nginx-build-image
+      - name: react - Build, tag, and push image to Amazon ECR
+        id: react-build-image
         env:
-          NGINX_ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          NGINX_ECR_REPOSITORY: training-calendar-frontend-preprod-nginx
+          REACT_ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REACT_ECR_REPOSITORY: training-calendar-frontend-preprod-react
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
           --build-arg REACT_API_BASE_URL="${{ env.REACT_API_BASE_URL }}" \
-          -t $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG \
+          -t $REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY:$IMAGE_TAG \
           -f react.Dockerfile .
-          docker tag  $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:latest
-          docker push $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY --all-tags
-          echo "image=$NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+          docker tag  $REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY:$IMAGE_TAG $REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY:latest
+          docker push $REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY --all-tags
+          echo "image=$REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Download task definition preprod-training-calendar-frontend
         run: |
           aws ecs describe-task-definition --task-definition preprod-training-calendar-frontend --query taskDefinition > task-definition.json
 
-      - name: Fill in the new nginx image ID in the Amazon ECS task definition
-        id: nginx-task-def
+      - name: Fill in the new react image ID in the Amazon ECS task definition
+        id: react-task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: nginx
-          image: ${{ steps.nginx-build-image.outputs.image }}
+          container-name: react
+          image: ${{ steps.react-build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition frontend-pack
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.nginx-task-def.outputs.task-definition }}
+          task-definition: ${{ steps.react-task-def.outputs.task-definition }}
           service: preprod-training-calendar-frontend
           cluster: preprod-training-calendar
           wait-for-service-stability: true
