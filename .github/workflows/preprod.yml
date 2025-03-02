@@ -3,16 +3,16 @@ name: Deploy preprod
 on:
   workflow_dispatch:
     inputs:
-        envToRun:
-          type: choice
-          description: 'Env to run [ test | ci | preprod | prod ]'
-          required: true
-          default: "preprod"
-          options:
-            - "test"
-            - "ci"
-            - "preprod"
-            - "prod"
+      envToRun:
+        type: choice
+        description: 'Env to run [ test | ci | preprod | prod ]'
+        required: true
+        default: preprod
+        options:
+          - test
+          - ci
+          - preprod
+          - prod
 
 jobs:
 
@@ -29,9 +29,10 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
+          
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -39,16 +40,16 @@ jobs:
       - name: nginx - Build, tag, and push image to Amazon ECR
         id: nginx-build-image
         env:
-          NGINX_ECR_REGISTRY:   ${{ steps.login-ecr.outputs.registry }}
+          NGINX_ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           NGINX_ECR_REPOSITORY: training-calendar-frontend-preprod-nginx
-          IMAGE_TAG:            ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
           --build-arg REACT_API_BASE_URL="${{ env.REACT_API_BASE_URL }}" \
           -t $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG \
           -f nginx.Dockerfile .
-          docker tag      $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:latest
-          docker push     $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY --all-tags
+          docker tag  $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:latest
+          docker push $NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY --all-tags
           echo "image=$NGINX_ECR_REGISTRY/$NGINX_ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Download task definition preprod-training-calendar-frontend
@@ -60,13 +61,13 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name:  nginx
-          image:           ${{ steps.nginx-build-image.outputs.image }}
+          container-name: nginx
+          image: ${{ steps.nginx-build-image.outputs.image }}
 
-      # - name: Deploy Amazon ECS task definition frontend-pack
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      #   with:
-      #     task-definition: ${{ steps.nginx-task-def.outputs.task-definition }}
-      #     service: preprod-training-calendar-frontend
-      #     cluster: preprod-training-calendar
-      #     wait-for-service-stability: true
+      - name: Deploy Amazon ECS task definition frontend-pack
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.nginx-task-def.outputs.task-definition }}
+          service: preprod-training-calendar-frontend
+          cluster: preprod-training-calendar
+          wait-for-service-stability: true
