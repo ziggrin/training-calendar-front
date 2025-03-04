@@ -20,6 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: ${{ inputs.envToRun }}
+    env:
+      CLUSTER_NAME: preprod-training-calendar
+      SERVICE_NAME: preprod-training-calendar-frontend
+      AWS_REGION: eu-north-1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,7 +35,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
+          aws-region: $AWS_REGION
           
       - name: Login to Amazon ECR
         id: login-ecr
@@ -52,9 +56,11 @@ jobs:
           docker push $REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY --all-tags
           echo "image=$REACT_ECR_REGISTRY/$REACT_ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Download task definition preprod-training-calendar-frontend
+      - name: Download task definition
+        env:
+          TASK_DEFINITION: preprod-training-calendar-front
         run: |
-          aws ecs describe-task-definition --task-definition preprod-training-calendar-front --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition --task-definition $TASK_DEFINITION --query taskDefinition > task-definition.json
 
       - name: Fill in the new react image ID in the Amazon ECS task definition
         id: react-task-def
@@ -64,10 +70,43 @@ jobs:
           container-name: react
           image: ${{ steps.react-build-image.outputs.image }}
 
-      - name: Deploy Amazon ECS task definition frontend-pack
+      - name: Deploy ECS task definition on the service $
+        id: deploy-task
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.react-task-def.outputs.task-definition }}
-          service: preprod-training-calendar-frontend
-          cluster: preprod-training-calendar
+          cluster: $CLUSTER_NAME
+          service: $SERVICE_NAME
           wait-for-service-stability: true
+
+      - name: DEBUG - Check ECS deployment status
+        run: |
+          aws ecs describe-services --services rollback --cluster rollback --query "services[0].deployments" > deployments.json
+          cat deployments.json
+  
+      - name: Rollback detection
+        id: rollback-detection
+        env:
+          CLUSTER_NAME: $CLUSTER_NAME
+          SERVICE_NAME: $SERVICE_NAME
+          AWS_REGION:   $AWS_REGION
+        run: |
+          # Get task definition ARN from previous deployment step
+          NEW_TASK_DEF_ARN="${{ steps.deploy-task.outputs.task-definition-arn }}"
+      
+          # Get current active task definition from ECS service
+          CURRENT_TASK_DEF_ARN=$(aws ecs describe-services \
+            --cluster $CLUSTER_NAME \
+            --services $SERVICE_NAME \
+            --query 'services[0].taskDefinition' \
+            --output text)
+      
+          echo "New Task ARN: $NEW_TASK_DEF_ARN"
+          echo "Current Task ARN: $CURRENT_TASK_DEF_ARN"
+      
+          if [ "$NEW_TASK_DEF_ARN" != "$CURRENT_TASK_DEF_ARN" ]; then
+            echo "::error::Rollback detected! Service reverted to previous task definition."
+            exit 1
+          else
+            echo "Deployment successful - no rollback occurred"
+          fi
