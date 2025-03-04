@@ -81,7 +81,7 @@ jobs:
 
       - name: DEBUG - Check ECS deployment status
         run: |
-          aws ecs describe-services --services rollback --cluster rollback --query "services[0].deployments" > deployments.json
+          aws ecs describe-services --services ${{ env.SERVICE_NAME }} --cluster ${{ env.CLUSTER_NAME }} --query "services[0].deployments" > deployments.json
           cat deployments.json
   
       - name: Rollback detection
