@@ -35,7 +35,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: $AWS_REGION
+          aws-region: ${{ env.AWS_REGION }}
           
       - name: Login to Amazon ECR
         id: login-ecr
@@ -75,8 +75,8 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.react-task-def.outputs.task-definition }}
-          cluster: $CLUSTER_NAME
-          service: $SERVICE_NAME
+          cluster: ${{ env.CLUSTER_NAME }}
+          service: ${{ env.SERVICE_NAME }}
           wait-for-service-stability: true
 
       - name: DEBUG - Check ECS deployment status
@@ -87,9 +87,9 @@ jobs:
       - name: Rollback detection
         id: rollback-detection
         env:
-          CLUSTER_NAME: $CLUSTER_NAME
-          SERVICE_NAME: $SERVICE_NAME
-          AWS_REGION:   $AWS_REGION
+          CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+          AWS_REGION: ${{ env.AWS_REGION }}
         run: |
           # Get task definition ARN from previous deployment step
           NEW_TASK_DEF_ARN="${{ steps.deploy-task.outputs.task-definition-arn }}"
