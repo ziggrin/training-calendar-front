@@ -6,6 +6,14 @@ import PostList from './components/PostList';
 import PostForm from './components/PostForm';
 import Category from './components/Category';
 
+const HealthCheck = () => {
+  return (
+      <div>
+          {JSON.stringify({ status: 'OK' })}
+      </div>
+  );
+};
+
 function App() {
   return (
     <Router>
@@ -16,6 +24,7 @@ function App() {
           <Route path="/posts/new" element={<PostForm />} />
           <Route path="/categories" element={<Category />} />
           <Route path="/postform/:id?" element={<PostForm />} />
+          <Route path="/healthcheck" component={HealthCheck} />
           <Route path="*" element={<div>Page not found</div>} />
         </Routes>
       </div>
