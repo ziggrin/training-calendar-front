@@ -89,7 +89,6 @@ jobs:
         env:
           CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
           SERVICE_NAME: ${{ env.SERVICE_NAME }}
-          AWS_REGION: ${{ env.AWS_REGION }}
         run: |
           # Get task definition ARN from previous deployment step
           NEW_TASK_DEF_ARN="${{ steps.deploy-task.outputs.task-definition-arn }}"
