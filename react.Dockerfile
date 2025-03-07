@@ -10,7 +10,7 @@ WORKDIR /app
 # Copy package files first for better layer caching
 COPY package.json package-lock.json ./
 
-# So here I am installing ALL dependencies without audit and then 
+# So here I am installing ALL dependencies without audit then 
 # run audit without dev. I might check out adding : && \ npm audit --omit=dev
 RUN npm ci --no-audit --quiet
 
@@ -30,7 +30,6 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # Copy built assets with proper permissions
 COPY --from=builder --chown=nginx:nginx /app/build /usr/share/nginx/html
-
 COPY /nginx/ /etc/nginx/
 
 # Validate Nginx configuration
