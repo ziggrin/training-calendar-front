@@ -1,70 +1,106 @@
-# Getting Started with Create React App
+# Training Calendar App - [app.omega-next.online](https://app.omega-next.online)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a React application for managing posts and categories. It allows users to create, edit, and delete posts, as well as manage categories. It uses [Training Calendar API](https://github.com/ziggrin/training-calendar-api) as a backend.
 
-## Available Scripts
+### What's cool:
+- checkout the ```.github/workflows/preprod.yml``` to find out how CI/CD works,
+- you can very easily run this app as a full stack (API, Postgres, React) on your local machine using instructions posted here,
+- **NOT FINISHED** look at ```dev.react.Dockerfile``` dockerized version of this app that lets you develop quickly without having to install dependencies on your local system,
 
-In the project directory, you can run:
+## Table of Contents
 
-### `npm start`
+- [Installation](#installation)
+- [Usage](#usage)
+- [API](#api)
+- [Docker](#docker)
+- [Docker Compose](#docker-compose)
+- [Infrastructure](#infrastructure)
+- [License](#license)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Clone the repository:
 
-### `npm test`
+    ```sh
+    git clone git@github.com:YOURUSERNAME/training-calendar-api.git
+    cd training-calendar-front
+    ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. Install the dependencies:
 
-### `npm run build`
+    ```sh
+    npm install
+    ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Optional: 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+You could create a `.env` file in the root directory and add your API URL:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```env
+REACT_APP_API_URL=https://api.omega-next.online
+```
+Default localhost URL is: `http://localhost:8080/api/v1` just so it's compatible with ```docker-compose.yml``` from [Training Calendar API](https://github.com/ziggrin/training-calendar-api). If you are running this app not through compose free to set this value as you like.
 
-### `npm run eject`
+## Usage
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Start the development server:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    ```sh
+    npm start
+    ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. Open your browser and navigate to `http://localhost:3000`.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## API
 
-## Learn More
+The application interacts with a backend API to manage posts and categories. The API endpoints are defined in the `src/api.js` file.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Category API
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- `CategoryAPI.getAll()`: Fetch all categories.
+- `CategoryAPI.create(data)`: Create a new category.
+- `CategoryAPI.update(id, data)`: Update an existing category.
+- `CategoryAPI.delete(id)`: Delete a category.
 
-### Code Splitting
+### Post API
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- `PostAPI.getAll()`: Fetch all posts.
+- `PostAPI.get(id)`: Fetch a single post by ID.
+- `PostAPI.create(formData)`: Create a new post.
+- `PostAPI.update(id, formData)`: Update an existing post.
+- `PostAPI.delete(id)`: Delete a post.
 
-### Analyzing the Bundle Size
+## Docker
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+To run the application using Docker, follow these steps:
 
-### Making a Progressive Web App
+1. Build the Docker image:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+    ```sh
+    cd ./dockerdev
+    docker build -t training-calendar-front -f dev.react.Dockerfile .
+    ```
 
-### Advanced Configuration
+2. Run the Docker container:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+    ```sh
+    docker run -p 3000:3000 training-calendar-front
+    ```
 
-### Deployment
+## Docker-Compose
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+It's possible to run this application locally as a **full stack app with: API, Postgres and React** using ```.dockerdev/docker-compose.yml``` from [Training Calendar API](https://github.com/ziggrin/training-calendar-api).
 
-### `npm run build` fails to minify
+Simply follow the instructions provided here: API install instructions
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Infrastructure
+
+Right now there is only preproduction version of this application live on the AWS infrastructure built as IaC with Terraform:
+
+- [Terraform VPC, Security Groups, EC2 setup](https://github.com/ziggrin/tf-main-01-vpc)
+- [ECS Clusters, Services, RDS and permissions](https://github.com/ziggrin/tf-preprod-training-calendar)
+
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
