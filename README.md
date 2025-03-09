@@ -23,7 +23,7 @@ This is a React application for managing posts and categories. It allows users t
 1. Clone the repository:
 
     ```sh
-    git clone git@github.com:YOURUSERNAME/training-calendar-api.git
+    git clone git@github.com:ziggrin/training-calendar-api.git
     cd training-calendar-front
     ```
 
