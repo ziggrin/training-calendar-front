@@ -6,6 +6,7 @@ This is a React application for managing posts and categories. It allows users t
 - checkout the ```.github/workflows/preprod.yml``` to find out how CI/CD works,
 - you can very easily run this app as a full stack (API, Postgres, React) on your local machine using instructions posted here,
 - **NOT FINISHED** look at ```dev.react.Dockerfile``` dockerized version of this app that lets you develop quickly without having to install dependencies on your local system,
+- static files are hosted by nginx server with **H5BP boilerplate** configuration.
 
 ## Table of Contents
 
